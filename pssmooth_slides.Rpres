@@ -1,0 +1,76 @@
+<style>
+.small-code pre code {
+  font-size: 1em;
+}
+</style>
+
+R package pssmooth
+========================================================
+author: Michal Juraska
+date: September 24, 2018
+transition: none
+
+```{r, include=FALSE, cache=TRUE}
+dataDir <- "t:/vaccine/sanofipasteur/dengue/CYD14and15/Mon13CoR/data"
+outDir1 <- "h:/SCHARP/Sanofi/manuscript_VEcurveMethod/Routput"
+outDir2 <- "t:/vaccine/sanofipasteur/dengue/manuscript_VEcurveMethod/Routput"
+outDir3 <- "h:/SCHARP/Sanofi/teaching/Routput"
+figDir <- "h:/SCHARP/Sanofi/manuscript_VEcurveMethod/figures"
+
+data <- read.csv(file.path(dataDir,"cyd14and15m13CoRdata.csv"), header=TRUE)
+data <- subset(data, AGEYRS>=9)
+data <- subset(data, select=c(VACC, AGE, COUNTRY, bAUC, IMPSTLOG.AUCMB, ofstatus_m13, wts))
+colnames(data) <- c("vax", "age", "country", "bTiter", "m13Titer", "VCDpostM13", "wts")
+
+load(file.path(outDir3, "out1_riskCurve.RData"))
+out1.riskCurve <- oList
+```
+
+
+Data: 9-16 year-olds at-risk at month 13 in CYD14+CYD15
+========================================================
+class: small-code
+```{r}
+head(data)
+```
+
+Data: 9-16 year-olds at-risk at month 13 in CYD14+CYD15
+=======================================================
+class: small-code
+```{r}
+head(subset(data, !is.na(bTiter)))
+```
+
+R package pssmooth for inference on mCEP curves
+================
+1. `riskCurve:` calculates point estimates of $P(Y(z)=1 | S(1)=s_1)$, $z=0,1$
+2. `bootRiskCurve:` calculates bootstrap estimates of $P(Y(z)=1 | S(1)=s_1)$, $z=0,1$
+3. `summary:` tabulates point and interval estimates of $\mathop{\mathrm{mCEP}}(s_1)$
+4. `plotMCEPcurve:` plots point and interval estimates of $\mathop{\mathrm{mCEP}}(s_1)$
+5. `testConstancy:` tests $H_0^1$ or $H_0^2$
+6. `testEquality:` tests $H_0^3$ or $H_0^4$
+
+1. Point estimation of P(Y(z)=1 | S(1)=s_1)
+===========================================
+class: small-code
+```{r, eval=FALSE}
+psRange <- range(data$m13Titer, na.rm = TRUE)
+psGrid <- seq(psRange[1], psRange[2], length.out = 100)
+out1.riskCurve <- 
+  riskCurve(formula = VCDpostM13 ~ m13Titer + factor(age) + factor(country), 
+            bsm = "bTiter", 
+            tx = "vax", 
+            data = data, 
+            psGrid = psGrid)
+```
+
+1. Point estimation of P(Y(z)=1 | S(1)=s_1)
+===========================================
+class: small-code
+```{r}
+names(out1.riskCurve)
+out1.riskCurve$psGrid[1:5]
+out1.riskCurve$plaRiskCurve[1:5]
+out1.riskCurve$txRiskCurve[1:5]
+```
+
