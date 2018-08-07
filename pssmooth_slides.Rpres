@@ -36,12 +36,12 @@ out1.riskCurve <- oList
 
 # load(file.path(outDir2, "out2_riskCurve.RData"))
 # out2.riskCurve <- oList
-# 
-# load(file.path(outDir2, "out3_riskCurve.RData"))
-# out3.riskCurve <- oList
-# 
-# load(file.path(outDir2, "out4_riskCurve.RData"))
-# out4.riskCurve <- oList
+
+load(file.path(outDir2, "out3_riskCurve.RData"))
+out3.riskCurve <- oList
+
+load(file.path(outDir2, "out5_riskCurve.RData"))
+out5.riskCurve <- oList
 ```
 
 
@@ -152,11 +152,12 @@ out5.riskCurve <-
 class: small-code
 ```{r, echo=FALSE, fig.width=12, fig.height=8, fig.align='center'}
 par(mfrow=c(2,2))
-plotMCEPcurve(summary(out1.riskCurve, contrast="te"), xLab="Average Log10 M13 Titer in Vaccinees", yLab="Vaccine Efficacy")
-# plotMCEPcurve(summary(out2.riskCurve, contrast="te"), xLab="Average M13 Titer in Vaccinees")
-# plotMCEPcurve(summary(out3.riskCurve, contrast="te"), xLab="Average M13 Titer in Vaccinees")
+plotMCEPcurve(summary(out1.riskCurve, contrast="te"), title="Fixed Bandwidths", xLab="Average Log10 M13 Titer in Vaccinees", yLab="Vaccine Efficacy", yLim=c(-0.7,1))
+# a placeholder for out2.riskCurve which is still running
+plotMCEPcurve(summary(out1.riskCurve, contrast="te"), title="Variable Bandwidths", xLab="Average Log10 M13 Titer in Vaccinees", yLab="Vaccine Efficacy", yLim=c(-0.7,1))
+plotMCEPcurve(summary(out3.riskCurve, contrast="te"), title="Hinge Model", xLab="Average Log10 M13 Titer in Vaccinees", yLab="Vaccine Efficacy", yLim=c(-0.7,1))
 # out3.riskCurve and out4.riskCurve are identical because the column "wts" in the data was calculated the same way riskCurve calculates weights
-# plotMCEPcurve(summary(out5.riskCurve, contrast="te"), xLab="Average M13 Titer in Vaccinees")
+plotMCEPcurve(summary(out5.riskCurve, contrast="te"), title="Ordered Categorical Biomarker", xLab="Average Log10 M13 Titer Category in Vaccinees", yLab="Vaccine Efficacy", yLim=c(-0.7,1), pType="p")
 ```
 
 2. Bootstrap estimation of P(Y(z)=1 | S(1)=s_1)
