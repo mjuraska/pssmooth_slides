@@ -1,7 +1,7 @@
 ---
 title: "R package pssmooth"
 author: "Michal Juraska"
-date: "September 24, 2018"
+date: "September 24-26, 2018"
 output: 
   ioslides_presentation: 
     widescreen: true
@@ -67,6 +67,7 @@ head(subset(data, !is.na(bTiter)))
 psRange <- range(data$m13Titer, na.rm = TRUE)
 psGrid <- seq(psRange[1], psRange[2], length.out = 100)
 
+library(pssmooth)
 out1.riskCurve <- 
   riskCurve(formula = VCDpostM13 ~ m13Titer + factor(age) + factor(country), 
             bsm = "bTiter", 
@@ -344,7 +345,7 @@ slurm_apply(bootRiskCurve,        # a function that executes a single iteration
     - A failed iteration (e.g., due to a cluster or code error) does not interrupt other iterations in progress
     - Partial results available for examination
     - Partial results allow to project the time to completion
-- `rslurm` combines all RDS files into a single data frame
+- `get_slurm_out` combines all RDS files into a single data frame
 
 ##    
 <br><br><br><br>
