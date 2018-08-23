@@ -1,0 +1,87 @@
+---
+title: "R Code for Correlates of Risk Assessment in Moodie et al.<br>(2017, JID, Table 1)"
+author: "Michal Juraska"
+date: "September 24-26, 2018"
+output: 
+  ioslides_presentation: 
+    widescreen: true
+    transition: 0
+---
+
+```{r, include=FALSE, cache=TRUE}
+dataDir <- "t:/vaccine/sanofipasteur/dengue/CYD14/adata"
+figDir <- "h:/SCHARP/Sanofi/teaching/slides/figures"
+
+data <- read.csv(file.path(dataDir, "cyd14m13CoRdata.csv"))
+data <- subset(data, VACC==1)
+```
+
+##     
+<br><br>
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(file.path(figDir,"Moodie_JID2017masthead.png"))
+```
+
+##
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1caption.png"))
+```
+```{r, echo=FALSE, fig.align='center', out.width='50%'}
+knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1cyd14vaccinees.png"))
+```
+```{r, echo=FALSE, fig.align='center', out.width='90%'}
+knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1footnote.png"))
+```
+
+##
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1caption.png"))
+```
+```{r, echo=FALSE, fig.align='center', out.width='50%'}
+knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1cyd14vaccinees_highlight1.png"))
+```
+```{r, echo=FALSE, fig.align='center', out.width='90%'}
+knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1footnote.png"))
+```
+
+## CoR analysis by quantitative average titer
+```{r}
+# 'data' includes all vaccine recipients in the month 13 at-risk cohort in CYD14
+dataI <- subset(data, !is.na(IMPSTLOG.AUCMB))
+
+library(survival)
+fit <- cch(Surv(oftime_m13, ofstatus_m13) ~ IMPSTLOG.AUCMB + MALE + AGE + COUNTRY,
+           subcoh = dataI$ofstatus_m13==0,
+           id = dataI$SUBJID,
+           cohort.size = NROW(data),
+           data = dataI,
+           method = "LinYing")
+```
+
+## CoR analysis by quantitative average titer {.smaller}
+```{r}
+fit
+```
+
+## CoR analysis by quantitative average titer
+```{r}
+sfit <- summary(fit)$coef
+sfit
+```
+
+## CoR analysis by quantitative average titer {.smaller}
+<div style="float: left; width: 52%;">
+```{r}
+# estimated hazard ratio per 10-fold titer increase
+exp(sfit[1,1])
+# Wald 95% CI for the hazard ratio
+exp(sfit[1,1] + c(-1,1) * qnorm(0.975) * sfit[1,2])
+# p-value from 2-sided Wald test of H0: HR = 1
+sfit[1,4]
+```
+</div>
+<div style="float: right; width: 48%;">
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1cyd14vaccinees_highlight1.png"))
+```
+</div>
