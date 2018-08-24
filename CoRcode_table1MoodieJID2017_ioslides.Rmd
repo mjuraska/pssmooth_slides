@@ -85,3 +85,79 @@ sfit[1,4]
 knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1cyd14vaccinees_highlight1.png"))
 ```
 </div>
+
+##
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1caption.png"))
+```
+```{r, echo=FALSE, fig.align='center', out.width='50%'}
+knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1cyd14vaccinees_highlight2.png"))
+```
+```{r, echo=FALSE, fig.align='center', out.width='90%'}
+knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1footnote.png"))
+```
+
+## CoR analysis by quantitative serotype-specific titer {.smaller}
+```{r, eval=FALSE}
+dataI <- subset(data, !is.na(IMPSTLOG.Sero1))
+fit <- cch(Surv(s1ftime_m13, s1fstatus_m13) ~ IMPSTLOG.Sero1 + MALE + AGE + COUNTRY,
+           subcoh = dataI$s1fstatus_m13==0,
+           id = dataI$SUBJID,
+           cohort.size = NROW(data),
+           data = dataI,
+           method = "LinYing")
+
+dataI <- subset(data, !is.na(IMPSTLOG.Sero2))
+fit <- cch(Surv(s2ftime_m13, s2fstatus_m13) ~ IMPSTLOG.Sero2 + MALE + AGE + COUNTRY,
+           subcoh = dataI$s2fstatus_m13==0,
+           id = dataI$SUBJID,
+           cohort.size = NROW(data),
+           data = dataI,
+           method = "LinYing")
+
+# etc.
+```
+
+##
+```{r, echo=FALSE, fig.align='center', out.width='100%'}
+knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1caption.png"))
+```
+```{r, echo=FALSE, fig.align='center', out.width='50%'}
+knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1cyd14vaccinees_highlight3.png"))
+```
+```{r, echo=FALSE, fig.align='center', out.width='90%'}
+knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1footnote.png"))
+```
+
+## CoR analysis by low, medium, high average titer {.smaller}
+Low, medium, and high titer subgroups defined by **weighted** tertiles of month 13 titers **pooling over DENV1--4 and over the vaccine and placebo groups** within each trial.
+
+- Why weighted? To account for the case-cohort biomarker sampling design.
+```{r, include=FALSE}
+# because the titer categories are defined pooling over the vaccine and placebo groups
+data <- read.csv(file.path(dataDir, "cyd14m13CoRdata.csv"))
+```
+
+```{r}
+# here 'data' includes all vaccine and placebo recipients in the month 13 at-risk cohort in CYD14
+
+wCase <- NROW(subset(data, ofstatus_m13==1)) / 
+  NROW(subset(data, ofstatus_m13==1 & !is.na(IMPSTLOG.AUCMB)))
+wCase
+wControl <- NROW(subset(data, ofstatus_m13==0)) / 
+  NROW(subset(data, ofstatus_m13==0 & !is.na(IMPSTLOG.AUCMB)))
+wControl
+```
+
+## CoR analysis by low, medium, high average titer
+```{r, message=FALSE}
+# pool over DENV1-4
+IMPSTLOG <- with(data, c(IMPSTLOG.Sero1, IMPSTLOG.Sero2, IMPSTLOG.Sero3, IMPSTLOG.Sero4))
+wts <- rep(ifelse(data$ofstatus_m13==1, wCase, wControl), 4)
+
+library(Hmisc)
+q <- wtd.quantile(IMPSTLOG, weights = wts, probs = c(1/3, 2/3))
+# weighted tertiles defining low, medium, high titer subgroups in CYD14
+10^q
+```
+
