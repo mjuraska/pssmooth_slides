@@ -58,6 +58,41 @@ fit <- cch(Surv(oftime_m13, ofstatus_m13) ~ IMPSTLOG.AUCMB + MALE + AGE + COUNTR
            method = "LinYing")
 ```
 
+## CoR analysis by quantitative average titer
+Estimators for unstratified case-cohort data:
+
+- `method = "Prentice"`: Prentice (1986, *Biometrika*) (default)
+- `method = "SelfPrentice"`: Self and Prentice (1988, *Annals of Statistics*)
+- `method = "LinYing"`: Lin and Ying (1993, *JASA*)
+    - best suited to the month 13 titer sampling design
+
+Estimators for stratified case-cohort data (Borgan et al., 2000, *LIDA*):
+
+- `method = "I.Borgan"` a generalization of the Self-Prentice estimator
+- `method = "II.Borgan"` a generalization of the Lin-Ying estimator
+    - allows stratification by study in the CYD14+CYD15 pooled analysis
+<div class="notes">
+3 methods available for unstratified case-cohort data: Prentice (1986), Self and Prentice (1988), Lin and Ying (1993). The methods differ in the risk sets they use to compare covariate values of the failure with covariate values of others at risk at the time of the failure.
+The Lin-Ying (1993, JASA) method is best suited to the sampling design of CYD14 and CYD15 where the method uses data from all members of the immuno subset and all cases outside the immuno subset who are "at risk" (since
+we have Mon 13 titers on cases outset the immuno subset). For the combined CYD14 and CYD15 analysis, we used the Borgan.II method- a generalization of the Lin-Ying estimator that allows stratification (by study).
+2 methods available for stratified case-cohort data: Borgan I, a generalization of the Self-Prentice estimator, and Borgan II, a generalization of the Lin-Ying estimator.
+</div>
+
+## CoR analysis by quantitative average titer
+```{r, eval=FALSE}
+fit <- cch(Surv(oftime_m13, ofstatus_m13) ~ IMPSTLOG.AUCMB + MALE + AGE + COUNTRY,
+           subcoh = dataI$ofstatus_m13==0,
+           id = dataI$SUBJID,
+           cohort.size = NROW(data),
+           data = dataI,
+           method = "LinYing")
+```
+- `subcoh`: indicates the randomly sampled subcohort
+- `id`: vector of unique identifiers
+- `cohort.size`: size of the entire cohort from which the subcohort was sampled
+- `data`: optional data frame for interpreting variables in the formula
+- `method`: "Prentice", "SelfPrentice", "LinYing", "I.Borgan", "II.Borgan"
+
 ## CoR analysis by quantitative average titer {.smaller}
 ```{r}
 fit
