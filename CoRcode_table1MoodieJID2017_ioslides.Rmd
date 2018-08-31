@@ -12,7 +12,7 @@ output:
 dataDir <- "t:/vaccine/sanofipasteur/dengue/CYD14/adata"
 figDir <- "h:/SCHARP/Sanofi/teaching/slides/figures"
 
-data <- read.csv(file.path(dataDir, "cyd14m13CoRdata.csv"))
+data <- read.csv(file.path(dataDir, "cyd14m13CoRdata_v2.csv"))
 data <- subset(data, VACC==1)
 ```
 
@@ -44,27 +44,27 @@ knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1cyd14vaccinees_hig
 knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1footnote.png"))
 ```
 
-## CoR analysis by quantitative average titer
+## CoR analysis by *quantitative average* titer
 ```{r}
 # 'data' includes all vaccine recipients in the month 13 at-risk cohort in CYD14
 dataI <- subset(data, !is.na(IMPSTLOG.AUCMB))
 
 library(survival)
 fit <- cch(Surv(oftime_m13, ofstatus_m13) ~ IMPSTLOG.AUCMB + MALE + AGE + COUNTRY,
-           subcoh = dataI$ofstatus_m13==0,
+           subcoh = dataI$FASI=="Y",
            id = dataI$SUBJID,
            cohort.size = NROW(data),
            data = dataI,
            method = "LinYing")
 ```
 
-## CoR analysis by quantitative average titer
+## CoR analysis by *quantitative average* titer
 Estimators for unstratified case-cohort data:
 
 - `method = "Prentice"`: Prentice (1986, *Biometrika*) (default)
 - `method = "SelfPrentice"`: Self and Prentice (1988, *Annals of Statistics*)
 - `method = "LinYing"`: Lin and Ying (1993, *JASA*)
-    - best suited to the month 13 titer sampling design
+    - generally more efficient than the Prentice estimator
 
 Estimators for stratified case-cohort data (Borgan et al., 2000, *LIDA*):
 
@@ -73,38 +73,42 @@ Estimators for stratified case-cohort data (Borgan et al., 2000, *LIDA*):
     - allows stratification by study in the CYD14+CYD15 pooled analysis
 <div class="notes">
 3 methods available for unstratified case-cohort data: Prentice (1986), Self and Prentice (1988), Lin and Ying (1993). The methods differ in the risk sets they use to compare covariate values of the failure with covariate values of others at risk at the time of the failure.
+The Lin-Ying estimator has a better variance than the Prentice estimator.
 The Lin-Ying (1993, JASA) method is best suited to the sampling design of CYD14 and CYD15 where the method uses data from all members of the immuno subset and all cases outside the immuno subset who are "at risk" (since
 we have Mon 13 titers on cases outset the immuno subset). For the combined CYD14 and CYD15 analysis, we used the Borgan.II method- a generalization of the Lin-Ying estimator that allows stratification (by study).
 2 methods available for stratified case-cohort data: Borgan I, a generalization of the Self-Prentice estimator, and Borgan II, a generalization of the Lin-Ying estimator.
 </div>
 
-## CoR analysis by quantitative average titer
+## CoR analysis by *quantitative average* titer
 ```{r, eval=FALSE}
 fit <- cch(Surv(oftime_m13, ofstatus_m13) ~ IMPSTLOG.AUCMB + MALE + AGE + COUNTRY,
-           subcoh = dataI$ofstatus_m13==0,
+           subcoh = dataI$FASI=="Y",
            id = dataI$SUBJID,
            cohort.size = NROW(data),
            data = dataI,
            method = "LinYing")
 ```
-- `subcoh`: indicates the randomly sampled subcohort
+- `subcoh`: indicates subjects sampled into the subcohort
 - `id`: vector of unique identifiers
 - `cohort.size`: size of the entire cohort from which the subcohort was sampled
 - `data`: optional data frame for interpreting variables in the formula
 - `method`: "Prentice", "SelfPrentice", "LinYing", "I.Borgan", "II.Borgan"
+<div class="notes">
+The estimator does not distinguish between cases in the sampled subcohort and cases outside the subcohort.
+</div>
 
-## CoR analysis by quantitative average titer {.smaller}
+## CoR analysis by *quantitative average* titer {.smaller}
 ```{r}
 fit
 ```
 
-## CoR analysis by quantitative average titer
+## CoR analysis by *quantitative average* titer
 ```{r}
 sfit <- summary(fit)$coef
 sfit
 ```
 
-## CoR analysis by quantitative average titer {.smaller}
+## CoR analysis by *quantitative average* titer {.smaller}
 <div style="float: left; width: 52%;">
 ```{r}
 # estimated hazard ratio per 10-fold titer increase
@@ -132,11 +136,11 @@ knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1cyd14vaccinees_hig
 knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1footnote.png"))
 ```
 
-## CoR analysis by quantitative serotype-specific titer {.smaller}
+## CoR analysis by *quantitative serotype-specific* titer {.smaller}
 ```{r, eval=FALSE}
 dataI <- subset(data, !is.na(IMPSTLOG.Sero1))
 fit <- cch(Surv(s1ftime_m13, s1fstatus_m13) ~ IMPSTLOG.Sero1 + MALE + AGE + COUNTRY,
-           subcoh = dataI$s1fstatus_m13==0,
+           subcoh = with(dataI, s1fstatus_m13==0 | (s1fstatus_m13==1 & FASI=="Y")),
            id = dataI$SUBJID,
            cohort.size = NROW(data),
            data = dataI,
@@ -144,7 +148,7 @@ fit <- cch(Surv(s1ftime_m13, s1fstatus_m13) ~ IMPSTLOG.Sero1 + MALE + AGE + COUN
 
 dataI <- subset(data, !is.na(IMPSTLOG.Sero2))
 fit <- cch(Surv(s2ftime_m13, s2fstatus_m13) ~ IMPSTLOG.Sero2 + MALE + AGE + COUNTRY,
-           subcoh = dataI$s2fstatus_m13==0,
+           subcoh = with(dataI, s2fstatus_m13==0 | (s2fstatus_m13==1 & FASI=="Y")),
            id = dataI$SUBJID,
            cohort.size = NROW(data),
            data = dataI,
@@ -164,13 +168,13 @@ knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1cyd14vaccinees_hig
 knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1footnote.png"))
 ```
 
-## CoR analysis by low, medium, high average titer {.smaller}
+## CoR analysis by *low, medium, high average* titer {.smaller}
 Low, medium, and high titer subgroups defined by **weighted** tertiles of month 13 titers **pooling over DENV1--4 and over the vaccine and placebo groups** within each trial.
 
 - Why weighted? To account for the case-cohort biomarker sampling design.
 ```{r, include=FALSE}
 # because the titer categories are defined pooling over the vaccine and placebo groups
-data <- read.csv(file.path(dataDir, "cyd14m13CoRdata.csv"))
+data <- read.csv(file.path(dataDir, "cyd14m13CoRdata_v2.csv"))
 ```
 
 ```{r}
@@ -184,7 +188,7 @@ wControl <- NROW(subset(data, ofstatus_m13==0)) /
 wControl
 ```
 
-## CoR analysis by low, medium, high average titer
+## CoR analysis by *low, medium, high average* titer
 ```{r, message=FALSE}
 # pool over DENV1-4
 IMPSTLOG <- with(data, c(IMPSTLOG.Sero1, IMPSTLOG.Sero2, IMPSTLOG.Sero3, IMPSTLOG.Sero4))
@@ -199,7 +203,7 @@ q <- wtd.quantile(IMPSTLOG, weights = wts, probs = c(1/3, 2/3))
 knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1footnote_highlight1.png"))
 ```
 
-## CoR analysis by low, medium, high average titer
+## CoR analysis by *low, medium, high average* titer
 ```{r}
 data$cat.Sero1 <- cut(data$IMPSTLOG.Sero1, breaks=c(0, q[1], q[2], Inf), 
                       right=FALSE, labels=c("Low","Medium","High"))
@@ -213,13 +217,13 @@ data$cat.AUCMB <- cut(data$IMPSTLOG.AUCMB, breaks=c(0, q[1], q[2], Inf),
                       right=FALSE, labels=c("Low","Medium","High"))
 ```
 
-## CoR analysis by low, medium, high average titer
+## CoR analysis by *low, medium, high average* titer
 ```{r}
 data <- subset(data, VACC==1)
 dataI <- subset(data, !is.na(cat.AUCMB))
 
 fit <- cch(Surv(oftime_m13, ofstatus_m13) ~ cat.AUCMB + MALE + AGE + COUNTRY,
-           subcoh = dataI$ofstatus_m13==0,
+           subcoh = dataI$FASI=="Y",
            id = dataI$SUBJID,
            cohort.size = NROW(data),
            data = dataI,
@@ -228,7 +232,7 @@ fit <- cch(Surv(oftime_m13, ofstatus_m13) ~ cat.AUCMB + MALE + AGE + COUNTRY,
 sfit <- summary(fit)$coef
 ```
 
-## CoR analysis by low, medium, high average titer {.smaller}
+## CoR analysis by *low, medium, high average* titer {.smaller}
 <div style="float: left; width: 55%;">
 ```{r}
 # estimated hazard ratios med vs. low and high vs. low
@@ -246,7 +250,7 @@ knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1cyd14vaccinees_hig
 ```
 </div>
 
-## CoR analysis by low, medium, high average titer {.smaller}
+## CoR analysis by *low, medium, high average* titer {.smaller}
 <div style="float: left; width: 56%;">
 ```{r}
 # Wald test statistic for testing
@@ -262,11 +266,11 @@ knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1cyd14vaccinees_hig
 ```
 </div>
 
-## CoR analysis by low, medium, high serotype-specific titers {.smaller}
+## CoR analysis by *low, medium, high serotype-specific* titers {.smaller}
 ```{r, include=FALSE, cache=TRUE}
 dataI <- subset(data, !is.na(cat.Sero1))
 fit <- cch(Surv(s1ftime_m13, s1fstatus_m13) ~ cat.Sero1 + MALE + AGE + COUNTRY,
-           subcoh = dataI$s1fstatus_m13==0,
+           subcoh = with(dataI, s1fstatus_m13==0 | (s1fstatus_m13==1 & FASI=="Y")),
            id = dataI$SUBJID,
            cohort.size = NROW(data),
            data = dataI,
@@ -277,7 +281,7 @@ pSero1 <- 1 - pchisq(stat, df = 2)
 
 dataI <- subset(data, !is.na(cat.Sero2))
 fit <- cch(Surv(s2ftime_m13, s2fstatus_m13) ~ cat.Sero2 + MALE + AGE + COUNTRY,
-           subcoh = dataI$s2fstatus_m13==0,
+           subcoh = with(dataI, s2fstatus_m13==0 | (s2fstatus_m13==1 & FASI=="Y")),
            id = dataI$SUBJID,
            cohort.size = NROW(data),
            data = dataI,
@@ -288,7 +292,7 @@ pSero2 <- 1 - pchisq(stat, df = 2)
 
 dataI <- subset(data, !is.na(cat.Sero3))
 fit <- cch(Surv(s3ftime_m13, s3fstatus_m13) ~ cat.Sero3 + MALE + AGE + COUNTRY,
-           subcoh = dataI$s3fstatus_m13==0,
+           subcoh = with(dataI, s3fstatus_m13==0 | (s3fstatus_m13==1 & FASI=="Y")),
            id = dataI$SUBJID,
            cohort.size = NROW(data),
            data = dataI,
@@ -299,7 +303,7 @@ pSero3 <- 1 - pchisq(stat, df = 2)
 
 dataI <- subset(data, !is.na(cat.Sero4))
 fit <- cch(Surv(s4ftime_m13, s4fstatus_m13) ~ cat.Sero4 + MALE + AGE + COUNTRY,
-           subcoh = dataI$s4fstatus_m13==0,
+           subcoh = with(dataI, s4fstatus_m13==0 | (s4fstatus_m13==1 & FASI=="Y")),
            id = dataI$SUBJID,
            cohort.size = NROW(data),
            data = dataI,
@@ -324,4 +328,21 @@ round(p.adjust(p, method = "holm"), digits = 5)
 ```{r, echo=FALSE, fig.align='center', out.width='100%'}
 knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1cyd14vaccinees_highlight5.png"))
 ```
+</div>
+
+## R documentation: `cch` in R package `survival`
+```{r, echo=FALSE, fig.align='center', out.width='90%'}
+knitr::include_graphics(file.path(figDir,"cchDocumentation.png"))
+```
+
+## Summary of key R functions
+<br><br><br>
+<div style="float: left; width: 25%;">
+</div>
+<div style="float: right; width: 75%;">
+- `cch` in R package `survival`
+- `summary`
+- `wtd.quantile` in R package `Hmisc`
+- `cut`
+- `p.adjust`
 </div>
