@@ -419,9 +419,9 @@ slurm_apply(bootRiskCurve,        # a function that executes a single iteration
 
 ## Summary of key R functions
 <br><br><br>
-<div style="float: left; width: 30%;">
+<div style="float: left; width: 32%;">
 </div>
-<div style="float: right; width: 70%;">
+<div style="float: right; width: 68%;">
 - `riskCurve`
 - `bootRiskCurve`
 - `summary`

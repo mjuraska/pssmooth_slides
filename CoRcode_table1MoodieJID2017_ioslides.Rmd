@@ -1,7 +1,7 @@
 ---
 title: "R Code for Correlates of Risk Assessment in Moodie et al.<br>(2017, JID, Table 1)"
 author: "Michal Juraska"
-date: "September 24-26, 2018"
+date: "September 24--26, 2018"
 output: 
   ioslides_presentation: 
     widescreen: true
@@ -72,7 +72,7 @@ Estimators for stratified case-cohort data (Borgan et al., 2000, *LIDA*):
 - `method = "II.Borgan"` a generalization of the Lin-Ying estimator
     - allows stratification by study in the CYD14+CYD15 pooled analysis
 <div class="notes">
-3 methods available for unstratified case-cohort data: Prentice (1986), Self and Prentice (1988), Lin and Ying (1993). The methods differ in the risk sets they use to compare covariate values of the failure with covariate values of others at risk at the time of the failure.
+3 methods available for unstratified case-cohort data: Prentice (1986), Self and Prentice (1988), Lin and Ying (1993). The methods differ in the choice of risk sets they use to compare covariate values of the failure with covariate values of others at risk at the time of the failure. "Prentice" uses the sub-cohort members "at risk" plus the failure if that occurs outside the sub-cohort and is score unbiased. "SelfPren" (Self-Prentice) uses just the sub-cohort members "at risk". These two have the same asymptotic variance-covariance matrix. "LinYing" (Lin-Ying) uses the all members of the sub-cohort and all failures outside the sub-cohort who are "at risk".
 The Lin-Ying estimator has a better variance than the Prentice estimator.
 The Lin-Ying (1993, JASA) method is best suited to the sampling design of CYD14 and CYD15 where the method uses data from all members of the immuno subset and all cases outside the immuno subset who are "at risk" (since
 we have Mon 13 titers on cases outset the immuno subset). For the combined CYD14 and CYD15 analysis, we used the Borgan.II method- a generalization of the Lin-Ying estimator that allows stratification (by study).
@@ -139,6 +139,7 @@ knitr::include_graphics(file.path(figDir,"Moodie_JID2017table1footnote.png"))
 
 ## CoR analysis by *quantitative serotype-specific* titer {.smaller}
 ```{r, eval=FALSE}
+# 'data' includes all vaccine recipients in the month 13 at-risk cohort in CYD14
 dataI <- subset(data, !is.na(IMPSTLOG.Sero1))
 fit <- cch(Surv(s1ftime_m13, s1fstatus_m13) ~ IMPSTLOG.Sero1 + MALE + AGE + COUNTRY,
            subcoh = with(dataI, s1fstatus_m13==0 | (s1fstatus_m13==1 & FASI=="Y")),
