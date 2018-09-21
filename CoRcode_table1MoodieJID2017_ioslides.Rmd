@@ -77,6 +77,7 @@ The Lin-Ying estimator has a better variance than the Prentice estimator.
 The Lin-Ying (1993, JASA) method is best suited to the sampling design of CYD14 and CYD15 where the method uses data from all members of the immuno subset and all cases outside the immuno subset who are "at risk" (since
 we have Mon 13 titers on cases outset the immuno subset). For the combined CYD14 and CYD15 analysis, we used the Borgan.II method- a generalization of the Lin-Ying estimator that allows stratification (by study).
 2 methods available for stratified case-cohort data: Borgan I, a generalization of the Self-Prentice estimator, and Borgan II, a generalization of the Lin-Ying estimator.
+The choice of method depends on the sampling design- eg Borgan II for stratified outcome-dependent retrospective two-phase sampling vs Borgan I for case-cohort sampling where the subcohort is defined at baseline. As the Lin-Ying method applies when there is phase 2 data on the simple random sample defined at baseline (i.e., the immunogenicity subset) and on all post-Month 13 cases outside the immuno subset, we defined the sub cohort as the non-cases in the immuno subset as all of the post-Month 13 cases are selected with probability 1. If the sampling design includes only phase 2 data on the simple random sample defined at baseline, then subcoh would be defined as FASI==Y. Our cch results and the tps results were nearly identical.
 </div>
 
 ## CoR analysis by *quantitative average* titer
